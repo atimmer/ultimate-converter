@@ -35,14 +35,18 @@ const formatAmount = (value: number, currency: string) => {
     return new Intl.NumberFormat("en", {
       style: "currency",
       currency,
-      maximumFractionDigits: 4,
+      maximumFractionDigits: 6,
+      minimumFractionDigits: 2,
     }).format(value);
   } catch {
-    return `${value.toFixed(4)} ${currency}`;
+    return `${value.toFixed(6)} ${currency}`;
   }
 };
 
-const formatRate = (rate: number) => rate.toPrecision(8);
+const formatRate = (rate: number) => {
+  const rounded = Number(rate.toFixed(8));
+  return rounded.toString();
+};
 
 export default function CurrencyConversionResult({ amount, currencyCode }: Props) {
   const uppercase = currencyCode.toUpperCase();
@@ -82,7 +86,7 @@ export default function CurrencyConversionResult({ amount, currencyCode }: Props
         <div className="space-y-2">
           {queries.map((query, index) => {
             if (!query.data) return null;
-            const converted = amount * query.data.rate;
+            const converted = Number((amount * query.data.rate).toFixed(6));
             return (
               <div
                 key={query.data.quote ?? targets[index]}

@@ -10,22 +10,24 @@ import { parseCurrencyPair } from "../../../utils/currencyPair";
 
 export const revalidate = cacheDurations.dailySeconds;
 
+type ErrorBody = { error: { code: string; message: string } };
+
+const badRequest = (code: string, message: string) =>
+  Response.json<ErrorBody>({ error: { code, message } }, { status: 400 });
+
 export async function GET(request: NextRequest) {
   const from = request.nextUrl.searchParams.get("from");
   const to = request.nextUrl.searchParams.get("to");
 
   if (!from || !to) {
-    return Response.json(
-      { error: "Missing query params. Use ?from=USD&to=EUR" },
-      { status: 400 },
-    );
+    return badRequest("MISSING_PARAMS", "Missing query params. Use ?from=USD&to=EUR");
   }
 
   const pair = parseCurrencyPair(`${from}/${to}`);
   if (!pair) {
-    return Response.json(
-      { error: "Invalid currency pair. Use three-letter codes, e.g. ?from=USD&to=EUR." },
-      { status: 400 },
+    return badRequest(
+      "INVALID_PAIR",
+      "Invalid currency pair. Use three-letter ISO codes, e.g. ?from=USD&to=EUR.",
     );
   }
 
@@ -35,10 +37,11 @@ export async function GET(request: NextRequest) {
       getLatestUsdRates(),
     ]);
 
-    if (!currencies[pair.base] || !currencies[pair.quote]) {
-      return Response.json(
-        { error: `Unknown currency code: ${pair.base}/${pair.quote}` },
-        { status: 400 },
+    const unknown = [pair.base, pair.quote].filter((code) => !currencies[code]);
+    if (unknown.length > 0) {
+      return badRequest(
+        "UNKNOWN_CODE",
+        `Unknown currency code(s): ${unknown.join(", ")}. Use ISO 4217 codes.`,
       );
     }
 
@@ -62,8 +65,14 @@ export async function GET(request: NextRequest) {
       },
     );
   } catch (error) {
+    console.error("exchange-rate route error", { error });
     return Response.json(
-      { error: error instanceof Error ? error.message : "Unexpected error" },
+      {
+        error: {
+          code: "UPSTREAM_ERROR",
+          message: error instanceof Error ? error.message : "Unexpected error",
+        },
+      } satisfies ErrorBody,
       { status: 502 },
     );
   }
