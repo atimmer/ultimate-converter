@@ -7,7 +7,9 @@ import type {
   OutputRow,
 } from "./types";
 
-const toRows = (conversion: ReturnType<typeof convertColorString>): OutputRow[] => {
+const toRows = (
+  conversion: ReturnType<typeof convertColorString>,
+): OutputRow[] => {
   if (!conversion) return [];
 
   return [
@@ -17,14 +19,12 @@ const toRows = (conversion: ReturnType<typeof convertColorString>): OutputRow[] 
   ];
 };
 
-const renderHighlight = (rgba: string, hex: string) => (
+const renderHighlight = (rgba: string) => (
   <div
     aria-hidden
     className="h-20 w-20 rounded-xl border border-slate-200 shadow-inner"
     style={{ backgroundColor: rgba }}
-  >
-    <span className="sr-only">{hex}</span>
-  </div>
+  />
 );
 
 const detect = (raw: string): Detection | null => {
@@ -37,14 +37,19 @@ const detect = (raw: string): Detection | null => {
   };
 };
 
-const convert = (detection: Detection, raw: string): ConversionPayload | null => {
-  const normalization = detection.normalizedInput as ReturnType<typeof convertColorString>;
+const convert = (
+  detection: Detection,
+  raw: string,
+): ConversionPayload | null => {
+  const normalization = detection.normalizedInput as ReturnType<
+    typeof convertColorString
+  >;
   const conversion = normalization ?? convertColorString(raw);
   if (!conversion) return null;
 
   return {
     rows: toRows(conversion),
-    highlight: renderHighlight(conversion.rgbaString, conversion.hex),
+    highlight: renderHighlight(conversion.rgbaString),
   };
 };
 
