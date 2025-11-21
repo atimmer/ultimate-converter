@@ -12,6 +12,21 @@ describe("resolver", () => {
     expect(result?.module.id).toBe("mass");
   });
 
+  it("detects speed notation", () => {
+    const result = resolveConversion("36 km/h", modules);
+    expect(result?.module.id).toBe("speed");
+  });
+
+  it("detects mph speed notation", () => {
+    const result = resolveConversion("60 mph", modules);
+    expect(result?.module.id).toBe("speed");
+  });
+
+  it("detects data-size notation", () => {
+    const result = resolveConversion("1024mb", modules);
+    expect(result?.module.id).toBe("data-size");
+  });
+
   it("returns null for empty input", () => {
     expect(resolveConversion("   ", modules)).toBeNull();
   });

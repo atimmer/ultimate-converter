@@ -8,6 +8,7 @@ import type { OutputRow } from "../conversions/types";
 type OmniConverterProps = {
   biasModuleId?: string;
   intro?: React.ReactNode;
+  defaultValue?: string;
 };
 
 const CopyButton = ({ text }: { text: string }) => {
@@ -59,8 +60,9 @@ const ResultRows = ({ rows }: { rows: OutputRow[] }) => (
 export default function OmniConverter({
   biasModuleId,
   intro,
+  defaultValue,
 }: OmniConverterProps) {
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState(defaultValue ?? "");
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
@@ -108,7 +110,7 @@ export default function OmniConverter({
             spellCheck={false}
             value={input}
             onChange={(event) => setInput(event.target.value)}
-            placeholder="#c044ff, 70 kg, eyJhbGciOi..."
+            placeholder="#c044ff, 70 kg, 90 km/h, 55 mph, eyJhbGciOi..."
             className="h-40 w-full resize-y rounded-2xl border-0 bg-transparent p-6 text-base font-medium text-slate-900 outline-none focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>

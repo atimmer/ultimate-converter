@@ -45,7 +45,10 @@ export default async function ConversionPage({ params }: PageProps) {
           <p className="text-base text-slate-600">{config.description}</p>
         </header>
 
-        <OmniConverter biasModuleId={config.biasModuleId} />
+        <OmniConverter
+          biasModuleId={config.biasModuleId}
+          defaultValue={config.exampleInput}
+        />
       </main>
     </div>
   );

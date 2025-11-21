@@ -12,8 +12,7 @@ export default function Page() {
             Convert anything in one paste
           </h1>
           <p className="text-base text-slate-600">
-            Drop in colors, weights, JWTs, and more. We auto-detect the format,
-            show rich previews (like color swatches), and give you the exact values to copy.
+            Drop in colors, weights, speeds (km/h, m/s, mph), data sizes, JWTs, and more. We auto-detect the format, show rich previews (like color swatches), and give you the exact values to copy.
           </p>
         </header>
 

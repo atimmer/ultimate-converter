@@ -1,13 +1,16 @@
 import color from "./color";
+import dataSize from "./dataSize";
 import jwt from "./jwt";
 import mass from "./mass";
+import speed from "./speed";
 import type {
   ConversionModule,
   ConversionResolution,
   ResolverOptions,
 } from "./types";
 
-export const modules: ConversionModule[] = [color, mass, jwt];
+/* Keep this list in alphabetical order */
+export const modules: ConversionModule[] = [color, dataSize, jwt, mass, speed];
 
 export function resolveConversion(
   raw: string,

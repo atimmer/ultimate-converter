@@ -1,10 +1,9 @@
-import type { ReactNode } from "react";
-
 export type ConversionPageConfig = {
   slug: string;
   title: string;
   description: string;
   biasModuleId?: string;
+  exampleInput?: string;
 };
 
 export const CONVERSION_PAGES: ConversionPageConfig[] = [
@@ -81,9 +80,67 @@ export const CONVERSION_PAGES: ConversionPageConfig[] = [
     biasModuleId: "mass",
   },
   {
+    slug: "kmh-to-ms",
+    title: "km/h to m/s Converter",
+    description: "Convert kilometers per hour to meters per second instantly.",
+    biasModuleId: "speed",
+  },
+  {
+    slug: "ms-to-kmh",
+    title: "m/s to km/h Converter",
+    description: "Switch meters per second into kilometers per hour in one paste.",
+    biasModuleId: "speed",
+  },
+  {
+    slug: "mph-to-kmh",
+    title: "mph to km/h Converter",
+    description: "Convert miles per hour to kilometers per hour with one paste.",
+    biasModuleId: "speed",
+  },
+  {
+    slug: "kmh-to-mph",
+    title: "km/h to mph Converter",
+    description: "Switch kilometers per hour to miles per hour instantly.",
+    biasModuleId: "speed",
+  },
+  {
+    slug: "mph-to-ms",
+    title: "mph to m/s Converter",
+    description: "Turn miles per hour into meters per second instantly.",
+    biasModuleId: "speed",
+  },
+  {
     slug: "jwt-decode",
     title: "Decode JWT Tokens",
     description: "Inspect JWT headers and payloads without verifying signatures.",
     biasModuleId: "jwt",
+  },
+  {
+    slug: "kb-to-mb",
+    title: "KB to MB Converter",
+    description: "Convert kilobytes to megabytes with 1024-base binary units.",
+    biasModuleId: "data-size",
+    exampleInput: "2048 KB",
+  },
+  {
+    slug: "mb-to-gb",
+    title: "MB to GB Converter",
+    description: "Translate megabytes to gigabytes using binary (1024) math.",
+    biasModuleId: "data-size",
+    exampleInput: "1024 MB",
+  },
+  {
+    slug: "gb-to-tb",
+    title: "GB to TB Converter",
+    description: "Convert gigabytes to terabytes without losing precision.",
+    biasModuleId: "data-size",
+    exampleInput: "4096 GB",
+  },
+  {
+    slug: "bytes-to-mb",
+    title: "Bytes to MB Converter",
+    description: "Turn raw bytes into megabytes using binary (1024) conversion.",
+    biasModuleId: "data-size",
+    exampleInput: "1048576 bytes",
   },
 ];

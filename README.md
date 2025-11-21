@@ -3,6 +3,8 @@
 A small Next.js (App Router) tool that auto-detects inputs and converts them inline. Today it handles:
 - CSS colors (hex, rgb/rgba, hsl/hsla, named keywords) → RGB, RGBA, Hex with a live swatch.
 - Mass (kg ↔ lb).
+- Speed (km/h ↔ m/s ↔ mph).
+- Data size (bytes, KB, MB, GB, TB).
 - JWT decode (header + payload + signature, decode only).
 
 SEO-friendly landing pages (e.g., `/rgb-to-hsl`, `/kg-to-lb`, `/jwt-decode`) are statically generated and reuse the omni-converter with a bias toward the named conversion plus intro copy.
