@@ -34,7 +34,10 @@ const CopyButton = ({ text }: { text: string }) => {
 const ResultRows = ({ rows }: { rows: OutputRow[] }) => (
   <dl className="space-y-4">
     {rows.map((row) => (
-      <div key={row.label} className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+      <div
+        key={row.label}
+        className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between"
+      >
         <div>
           <dt className="text-xs font-semibold uppercase tracking-widest text-slate-400">
             {row.label}
@@ -52,7 +55,10 @@ const ResultRows = ({ rows }: { rows: OutputRow[] }) => (
   </dl>
 );
 
-export default function OmniConverter({ biasModuleId, intro }: OmniConverterProps) {
+export default function OmniConverter({
+  biasModuleId,
+  intro,
+}: OmniConverterProps) {
   const [input, setInput] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
