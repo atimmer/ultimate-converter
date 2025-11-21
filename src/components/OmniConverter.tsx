@@ -116,7 +116,7 @@ export default function OmniConverter({
       {intro ? <div className="text-base text-slate-600">{intro}</div> : null}
 
       <section className="space-y-3">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <label
             htmlFor="omni-input"
             className="text-sm font-medium text-slate-700"
