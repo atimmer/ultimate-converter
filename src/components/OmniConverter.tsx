@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { SuggestionForm } from "./SuggestionForm";
 import { modules, resolveConversion } from "../conversions";
 import type { OutputRow } from "../conversions/types";
 
@@ -66,20 +67,22 @@ export default function OmniConverter({
     textareaRef.current?.focus();
   }, []);
 
+  const trimmedInput = useMemo(() => input.trim(), [input]);
+
   const resolution = useMemo(
     () => resolveConversion(input, modules, { biasModuleId }),
     [input, biasModuleId],
   );
 
   const helperText = useMemo(() => {
-    if (input.trim().length === 0) {
+    if (trimmedInput.length === 0) {
       return "Paste a supported value to get started.";
     }
 
     return resolution
       ? `Detected ${resolution.module.label}. See conversions below.`
-      : "That input is not recognized yet.";
-  }, [input, resolution]);
+      : "That input is not recognized yet. You can suggest the expected result.";
+  }, [resolution, trimmedInput]);
 
   return (
     <div className="space-y-8">
@@ -130,8 +133,17 @@ export default function OmniConverter({
                 {resolution.payload.highlight}
               </div>
             ) : null}
-            <ResultRows rows={resolution.payload.rows} />
+            <div className="space-y-6">
+              <ResultRows rows={resolution.payload.rows} />
+              <SuggestionForm
+                input={input}
+                variant="inline"
+                title="Need another output?"
+              />
+            </div>
           </div>
+        ) : trimmedInput.length > 0 ? (
+          <SuggestionForm input={input} />
         ) : (
           <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">
             Paste any supported value to see conversions here.
