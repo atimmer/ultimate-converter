@@ -5,7 +5,7 @@ A small Next.js (App Router) tool that auto-detects inputs and converts them inl
 - Mass (kg ↔ lb).
 - JWT decode (header + payload + signature, decode only).
 
-SEO-friendly landing pages (e.g., `/rgb-to-hsl`, `/kg-to-lb`, `/jwt-decode`) are statically generated and reuse the omni-converter with biased defaults and intro copy.
+SEO-friendly landing pages (e.g., `/rgb-to-hsl`, `/kg-to-lb`, `/jwt-decode`) are statically generated and reuse the omni-converter with a bias toward the named conversion plus intro copy.
 
 ## Stack
 
@@ -25,7 +25,7 @@ SEO-friendly landing pages (e.g., `/rgb-to-hsl`, `/kg-to-lb`, `/jwt-decode`) are
 
 1. Install deps: `./runner pnpm install`.
 2. Start dev: `./runner pnpm dev` and open the app.
-3. Paste a supported value (color, mass, JWT) and see instant conversions. SEO routes prefill an example for that conversion.
+3. Paste a supported value (color, mass, JWT) and see instant conversions. SEO routes bias detection toward the page’s conversion.
 
 ## Notes
 

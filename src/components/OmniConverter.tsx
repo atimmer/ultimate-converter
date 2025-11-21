@@ -6,7 +6,6 @@ import type { OutputRow } from "../conversions/types";
 
 type OmniConverterProps = {
   biasModuleId?: string;
-  defaultValue?: string;
   intro?: React.ReactNode;
 };
 
@@ -53,17 +52,13 @@ const ResultRows = ({ rows }: { rows: OutputRow[] }) => (
   </dl>
 );
 
-export default function OmniConverter({ biasModuleId, defaultValue, intro }: OmniConverterProps) {
-  const [input, setInput] = useState(defaultValue ?? "");
+export default function OmniConverter({ biasModuleId, intro }: OmniConverterProps) {
+  const [input, setInput] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
     textareaRef.current?.focus();
   }, []);
-
-  useEffect(() => {
-    if (defaultValue) setInput(defaultValue);
-  }, [defaultValue]);
 
   const resolution = useMemo(
     () => resolveConversion(input, modules, { biasModuleId }),
