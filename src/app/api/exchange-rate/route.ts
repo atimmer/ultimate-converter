@@ -8,19 +8,24 @@ import {
 } from "../../../lib/currencyApi";
 import { parseCurrencyPair } from "../../../utils/currencyPair";
 
-export const revalidate = cacheDurations.dailySeconds;
+export const revalidate = 86400;
 
 type ErrorBody = { error: { code: string; message: string } };
 
 const badRequest = (code: string, message: string) =>
-  Response.json({ error: { code, message } } satisfies ErrorBody, { status: 400 });
+  Response.json({ error: { code, message } } satisfies ErrorBody, {
+    status: 400,
+  });
 
 export async function GET(request: NextRequest) {
   const from = request.nextUrl.searchParams.get("from");
   const to = request.nextUrl.searchParams.get("to");
 
   if (!from || !to) {
-    return badRequest("MISSING_PARAMS", "Missing query params. Use ?from=USD&to=EUR");
+    return badRequest(
+      "MISSING_PARAMS",
+      "Missing query params. Use ?from=USD&to=EUR",
+    );
   }
 
   const pair = parseCurrencyPair(`${from}/${to}`);
@@ -60,7 +65,8 @@ export async function GET(request: NextRequest) {
       {
         status: 200,
         headers: {
-          "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=43200",
+          "Cache-Control":
+            "public, s-maxage=86400, stale-while-revalidate=43200",
         },
       },
     );
