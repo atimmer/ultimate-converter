@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { SuggestionForm } from "./SuggestionForm";
+import CopyButton from "./CopyButton";
 import {
   alwaysPossibleModules,
   modules,
@@ -16,28 +17,6 @@ type OmniConverterProps = {
   preferredAlwaysModuleId?: string;
   intro?: React.ReactNode;
   defaultValue?: string;
-};
-
-const CopyButton = ({ text, label }: { text: string; label: string }) => {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = async () => {
-    if (!navigator?.clipboard) return;
-    await navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
-  };
-
-  return (
-    <button
-      type="button"
-      onClick={handleCopy}
-      className="rounded-md border border-slate-200 px-2 py-1 text-xs font-semibold text-slate-600 transition hover:bg-slate-100 active:translate-y-px"
-      aria-label={label}
-    >
-      {copied ? "Copied" : label}
-    </button>
-  );
 };
 
 const ResultRows = ({ rows }: { rows: OutputRow[] }) => (
@@ -154,25 +133,27 @@ export default function OmniConverter({
           ) : null}
         </div>
         {resolution ? (
-          <div
-            className={cn(
-              "grid gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm",
-              hasHighlight && "sm:grid-cols-[auto_1fr]",
-            )}
-          >
-            {hasHighlight ? (
-              <div className="flex items-start justify-center sm:justify-start">
-                {resolution.payload.highlight}
+          <div className="space-y-4">
+            <div
+              className={cn(
+                "grid gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm",
+                hasHighlight && "sm:grid-cols-[auto_1fr]",
+              )}
+            >
+              {hasHighlight ? (
+                <div className="flex items-start justify-center sm:justify-start">
+                  {resolution.payload.highlight}
+                </div>
+              ) : null}
+              <div className="space-y-6">
+                <ResultRows rows={resolution.payload.rows} />
               </div>
-            ) : null}
-            <div className="space-y-6">
-              <ResultRows rows={resolution.payload.rows} />
-              <SuggestionForm
-                input={input}
-                variant="inline"
-                title="Need another output?"
-              />
             </div>
+            <SuggestionForm
+              input={input}
+              variant="inline"
+              title="Need another output?"
+            />
           </div>
         ) : trimmedInput.length > 0 ? (
           <SuggestionForm input={input} />

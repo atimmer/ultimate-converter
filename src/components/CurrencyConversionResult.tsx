@@ -2,8 +2,25 @@
 
 import { useMemo } from "react";
 import { useQueries } from "@tanstack/react-query";
+import CopyButton from "./CopyButton";
 
 const TARGETS = ["USD", "EUR", "GBP", "JPY", "AUD"];
+
+const SYMBOL_BY_CODE: Record<string, string> = {
+  USD: "$",
+  EUR: "€",
+  GBP: "£",
+  JPY: "¥",
+  AUD: "A$",
+  CAD: "C$",
+  CHF: "₣",
+  KRW: "₩",
+  INR: "₹",
+  PHP: "₱",
+  RUB: "₽",
+  VND: "₫",
+  TRY: "₺",
+};
 
 type Props = {
   amount: number;
@@ -48,6 +65,18 @@ const formatRate = (rate: number) => {
   return rounded.toString();
 };
 
+const formatAsOf = (asOf?: string | null) => {
+  if (!asOf) return "Updated daily";
+  const parsed = new Date(asOf);
+  if (Number.isNaN(parsed.getTime())) return "Updated daily";
+  return parsed.toLocaleString("en", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+};
+
 export default function CurrencyConversionResult({ amount, currencyCode }: Props) {
   const uppercase = currencyCode.toUpperCase();
   const targets = useMemo(
@@ -66,14 +95,19 @@ export default function CurrencyConversionResult({ amount, currencyCode }: Props
   const anyError = queries.find((q) => q.error);
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-4 shadow-sm">
-      <div className="flex items-center justify-between">
-        <div className="text-sm font-semibold text-slate-700">
-          {formatAmount(amount, uppercase)}
+    <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="space-y-1">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+          Converted from
+        </p>
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <div className="text-lg font-semibold text-slate-900">
+            {formatAmount(amount, uppercase)}
+          </div>
+          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+            {uppercase}
+          </span>
         </div>
-        <span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-600">
-          {uppercase}
-        </span>
       </div>
 
       {anyLoading ? (
@@ -83,26 +117,47 @@ export default function CurrencyConversionResult({ amount, currencyCode }: Props
           {anyError instanceof Error ? anyError.message : "Could not load rates."}
         </p>
       ) : (
-        <div className="space-y-2">
+        <div className="grid gap-3">
           {queries.map((query, index) => {
             if (!query.data) return null;
             const converted = Number((amount * query.data.rate).toFixed(6));
+            const formattedAmount = formatAmount(converted, query.data.quote);
+            const rateLabel = formatRate(query.data.rate);
+            const plainAmount = converted.toFixed(6);
+            const unit = SYMBOL_BY_CODE[query.data.quote] ?? query.data.quote;
+            const amountWithUnit =
+              unit.length === 1 || unit.endsWith("$")
+                ? `${unit}${plainAmount}`
+                : `${plainAmount} ${unit}`;
+
             return (
               <div
                 key={query.data.quote ?? targets[index]}
-                className="flex items-center justify-between rounded-lg border border-slate-100 bg-white px-3 py-2"
+                className="flex flex-wrap items-start gap-3 rounded-xl border border-slate-100 bg-white px-4 py-3 shadow-[0_1px_2px_rgba(15,23,42,0.04)]"
               >
-                <div>
-                  <div className="text-sm font-semibold text-slate-800">
-                    {formatAmount(converted, query.data.quote)}
+                <div className="min-w-[180px] flex-1 space-y-1">
+                  <div className="text-base font-semibold text-slate-900">
+                    {formattedAmount}
                   </div>
-                  <div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">
-                    {query.data.base} → {query.data.quote} (rate {formatRate(query.data.rate)})
+                  <div className="text-xs text-slate-600">
+                    1 {query.data.base} = {rateLabel} {query.data.quote}
                   </div>
                 </div>
-                <span className="text-xs text-slate-500">
-                  {query.data.asOf ? `As of ${new Date(query.data.asOf).toUTCString()}` : "Daily"}
-                </span>
+
+                <div className="flex flex-col gap-1 text-xs text-slate-500">
+                  <span className="font-mono text-slate-600">
+                    {query.data.base} → {query.data.quote}
+                  </span>
+                  <span>{formatAsOf(query.data.asOf)}</span>
+                </div>
+
+                <div className="ml-auto flex items-center gap-2">
+                  <CopyButton text={plainAmount} label="Copy" />
+                  <CopyButton
+                    text={amountWithUnit}
+                    label="Copy with unit"
+                  />
+                </div>
               </div>
             );
           })}
