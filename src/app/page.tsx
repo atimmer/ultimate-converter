@@ -1,7 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { convertHslString } from './utils/colorConverter'
+'use client'
 
-function App() {
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { convertHslString } from '../utils/colorConverter'
+
+export default function Page() {
   const [input, setInput] = useState('')
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
 
@@ -96,5 +98,3 @@ function App() {
     </div>
   )
 }
-
-export default App

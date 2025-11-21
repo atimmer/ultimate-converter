@@ -1,23 +1,36 @@
 import js from '@eslint/js'
 import globals from 'globals'
-import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
+import nextPlugin from '@next/eslint-plugin-next'
+import { FlatCompat } from '@eslint/eslintrc'
 import tseslint from 'typescript-eslint'
-import { defineConfig, globalIgnores } from 'eslint/config'
+import { defineConfig } from 'eslint/config'
+import path from 'node:path'
+import url from 'node:url'
+
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url))
+const compat = new FlatCompat({ baseDirectory: __dirname })
 
 export default defineConfig([
-  globalIgnores(['dist']),
   {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      js.configs.recommended,
-      tseslint.configs.recommended,
-      reactHooks.configs['recommended-latest'],
-      reactRefresh.configs.vite,
-    ],
+    ignores: ['.next/', 'dist/', 'node_modules/'],
+  },
+  // Next.js recommended rules converted for Flat config.
+  ...compat.extends('next', 'next/core-web-vitals'),
+  {
+    files: ['**/*.{ts,tsx,js,jsx}'],
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
+      parserOptions: {
+        projectService: true,
+      },
     },
+    plugins: {
+      '@next/next': nextPlugin,
+    },
+    extends: [
+      js.configs.recommended,
+      ...tseslint.configs.recommendedTypeChecked,
+    ],
   },
 ])
