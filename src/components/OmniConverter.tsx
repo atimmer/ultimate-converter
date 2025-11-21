@@ -134,21 +134,27 @@ export default function OmniConverter({
         </div>
         {resolution ? (
           <div className="space-y-4">
-            <div
-              className={cn(
-                "grid gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm",
-                hasHighlight && "sm:grid-cols-[auto_1fr]",
-              )}
-            >
-              {hasHighlight ? (
-                <div className="flex items-start justify-center sm:justify-start">
-                  {resolution.payload.highlight}
-                </div>
-              ) : null}
-              <div className="space-y-6">
-                <ResultRows rows={resolution.payload.rows} />
+            {hasHighlight && resolution.payload.rows.length === 0 ? (
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                {resolution.payload.highlight}
               </div>
-            </div>
+            ) : (
+              <div
+                className={cn(
+                  "grid gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm",
+                  hasHighlight && "sm:grid-cols-[auto_1fr]",
+                )}
+              >
+                {hasHighlight ? (
+                  <div className="flex items-start justify-center sm:justify-start">
+                    {resolution.payload.highlight}
+                  </div>
+                ) : null}
+                <div className="space-y-6">
+                  <ResultRows rows={resolution.payload.rows} />
+                </div>
+              </div>
+            )}
             <SuggestionForm
               input={input}
               variant="inline"
