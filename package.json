@@ -8,6 +8,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "test": "bun test",
     "format": "prettier --write .",
     "lint:prettier": "prettier --check .",
     "lint:types": "tsc --noEmit --pretty false",

@@ -31,6 +31,11 @@ const HEX_REGEX = /^#?(?<value>[0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
 
+const roundTo = (value: number, precision = 2) => {
+  const factor = 10 ** precision;
+  return Math.round(value * factor) / factor;
+};
+
 const normalizeHue = (hue: number) => {
   if (!Number.isFinite(hue)) {
     return 0;
@@ -42,6 +47,20 @@ const normalizeHue = (hue: number) => {
 
 const channelFromPercent = (value: number) =>
   clamp((value / 100) * 255, 0, 255);
+
+const normalizeHsl = ({ h, s, l, a }: HslInput): HslInput => ({
+  h: roundTo(normalizeHue(h)),
+  s: roundTo(clamp(s, 0, 100)),
+  l: roundTo(clamp(l, 0, 100)),
+  a: a === undefined ? undefined : clamp(a, 0, 1),
+});
+
+const normalizeRgb = ({ r, g, b, a }: RgbColor): RgbColor => ({
+  r: Math.round(clamp(r, 0, 255)),
+  g: Math.round(clamp(g, 0, 255)),
+  b: Math.round(clamp(b, 0, 255)),
+  a: a === undefined ? undefined : clamp(a, 0, 1),
+});
 
 const parseAlpha = (alpha: string | undefined) => {
   if (alpha === undefined || alpha === "") {
@@ -77,7 +96,7 @@ export function parseHslString(rawInput: string): HslInput | null {
     return null;
   }
 
-  return { h, s, l, a };
+  return normalizeHsl({ h, s, l, a });
 }
 
 export function parseRgbString(rawInput: string): RgbColor | null {
@@ -218,26 +237,47 @@ export function rgbToHsl({ r, g, b, a }: RgbColor): HslInput {
   const saturationPercent = clamp(s * 100, 0, 100);
   const lightnessPercent = clamp(l * 100, 0, 100);
 
-  return { h: normalizedHue, s: saturationPercent, l: lightnessPercent, a };
+  return normalizeHsl({
+    h: normalizedHue,
+    s: saturationPercent,
+    l: lightnessPercent,
+    a,
+  });
 }
 
 export function rgbToHex({ r, g, b, a }: RgbColor): string {
+  const normalized = normalizeRgb({ r, g, b, a });
   const toHex = (value: number) =>
     clamp(Math.round(value), 0, 255).toString(16).padStart(2, "0");
-  const base = `${toHex(r)}${toHex(g)}${toHex(b)}`;
+  const base = `${toHex(normalized.r)}${toHex(normalized.g)}${toHex(
+    normalized.b,
+  )}`;
 
-  if (a === undefined) {
+  if (normalized.a === undefined) {
     return `#${base}`.toUpperCase();
   }
 
-  const alphaHex = toHex(Math.round(clamp(a, 0, 1) * 255));
+  const alphaHex = toHex(Math.round(clamp(normalized.a, 0, 1) * 255));
   return `#${base}${alphaHex}`.toUpperCase();
 }
 
-const formatRgbString = ({ r, g, b }: RgbColor) =>
-  `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
-const formatRgbaString = ({ r, g, b, a }: RgbColor) =>
-  `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, ${a ?? 1})`;
+const formatAlpha = (value: number | undefined) => {
+  const normalized = clamp(value ?? 1, 0, 1);
+  const rounded = roundTo(normalized, 2);
+  const fixed = rounded.toFixed(2);
+  return fixed.replace(/\.?0+$/, "");
+};
+
+const formatRgbString = (color: RgbColor) => {
+  const { r, g, b } = normalizeRgb(color);
+  return `rgb(${r}, ${g}, ${b})`;
+};
+
+const formatRgbaString = (color: RgbColor) => {
+  const normalized = normalizeRgb(color);
+  const alpha = formatAlpha(normalized.a);
+  return `rgba(${normalized.r}, ${normalized.g}, ${normalized.b}, ${alpha})`;
+};
 
 export function convertColorString(
   input: string,
@@ -249,48 +289,54 @@ export function convertColorString(
   const fromHsl = parseHslString(input);
   if (fromHsl) {
     const rgb = hslToRgb(fromHsl);
+    const normalizedRgb = normalizeRgb(rgb);
+    const normalizedHsl = normalizeHsl(fromHsl);
+
     return {
-      hsl: fromHsl,
-      rgb,
-      rgbString: formatRgbString(rgb),
-      rgbaString: formatRgbaString(rgb),
-      hex: rgbToHex(rgb),
+      hsl: normalizedHsl,
+      rgb: normalizedRgb,
+      rgbString: formatRgbString(normalizedRgb),
+      rgbaString: formatRgbaString(normalizedRgb),
+      hex: rgbToHex(normalizedRgb),
     };
   }
 
   const fromRgb = parseRgbString(input);
   if (fromRgb) {
-    const hsl = rgbToHsl(fromRgb);
+    const normalizedRgb = normalizeRgb(fromRgb);
+    const hsl = rgbToHsl(normalizedRgb);
     return {
       hsl,
-      rgb: fromRgb,
-      rgbString: formatRgbString(fromRgb),
-      rgbaString: formatRgbaString(fromRgb),
-      hex: rgbToHex(fromRgb),
+      rgb: normalizedRgb,
+      rgbString: formatRgbString(normalizedRgb),
+      rgbaString: formatRgbaString(normalizedRgb),
+      hex: rgbToHex(normalizedRgb),
     };
   }
 
   const fromHex = parseHexString(input);
   if (fromHex) {
-    const hsl = rgbToHsl(fromHex);
+    const normalizedRgb = normalizeRgb(fromHex);
+    const hsl = rgbToHsl(normalizedRgb);
     return {
       hsl,
-      rgb: fromHex,
-      rgbString: formatRgbString(fromHex),
-      rgbaString: formatRgbaString(fromHex),
-      hex: rgbToHex(fromHex),
+      rgb: normalizedRgb,
+      rgbString: formatRgbString(normalizedRgb),
+      rgbaString: formatRgbaString(normalizedRgb),
+      hex: rgbToHex(normalizedRgb),
     };
   }
 
   const fromName = parseNamedColor(input);
   if (fromName) {
-    const hsl = rgbToHsl(fromName);
+    const normalizedRgb = normalizeRgb(fromName);
+    const hsl = rgbToHsl(normalizedRgb);
     return {
       hsl,
-      rgb: fromName,
-      rgbString: formatRgbString(fromName),
-      rgbaString: formatRgbaString(fromName),
-      hex: rgbToHex(fromName),
+      rgb: normalizedRgb,
+      rgbString: formatRgbString(normalizedRgb),
+      rgbaString: formatRgbaString(normalizedRgb),
+      hex: rgbToHex(normalizedRgb),
     };
   }
 
