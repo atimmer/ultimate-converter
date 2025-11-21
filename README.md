@@ -11,6 +11,15 @@ A small Next.js (App Router) tool that auto-detects inputs and converts them inl
 - Base64 decode (standard + base64url into UTF-8, with optional JSON pretty-print).
 - Currency exchange rates (any pair via USD-based daily rates from currencyapi.com).
 
+## Currency Converter
+
+- Detects inputs like `$100`, `100 EUR`, `€25.50`, or `usd 5`.
+- Uses `/api/exchange-rate?from=EUR&to=USD` (ISO 4217 codes) which:
+  - Caches the `latest` USD-based rates for 24h (upstream updates daily).
+  - Caches the currencies list for 14 days.
+  - Returns `{ base, quote, rate, inverseRate?, asOf }` or a structured `{ error: { code, message } }`.
+- Client rendering uses React Query to fetch common targets and shows formatted amounts with consistent precision.
+
 SEO-friendly landing pages (e.g., `/rgb-to-hsl`, `/kg-to-lb`, `/jwt-decode`) are statically generated and reuse the omni-converter with a bias toward the named conversion plus intro copy.
 
 An “always-on” section sits below the main results to surface converters that work on any input (starting with Base64 encode) without changing the primary “no results” state.
