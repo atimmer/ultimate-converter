@@ -1,5 +1,6 @@
 import base64 from "./base64";
 import color from "./color";
+import currency from "./currency";
 import dataSize from "./dataSize";
 import jwt from "./jwt";
 import mass from "./mass";
@@ -16,6 +17,7 @@ export { alwaysPossibleModules, resolveAlwaysPossible } from "./alwaysPossible";
 export const modules: ConversionModule[] = [
   base64,
   color,
+  currency,
   dataSize,
   jwt,
   mass,
