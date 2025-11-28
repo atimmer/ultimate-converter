@@ -28,6 +28,16 @@ describe("base64 module", () => {
     expect(jsonRow?.value).toContain('"foo": true');
   });
 
+  it("decodes short unpadded base64 strings", () => {
+    const input = "MTAwa2c"; // "100kg"
+    const detection = base64Module.detect(input);
+    if (!detection) throw new Error("Detection failed");
+
+    const payload = base64Module.convert(detection, input);
+    const decodedRow = payload?.rows.find((row) => row.label === "Decoded (UTF-8)");
+    expect(decodedRow?.value).toBe("100kg");
+  });
+
   it("detects base64url strings", () => {
     const input = "eyJmb28iOiJiYXNlNjQtdXJsIn0"; // base64url for {"foo":"base64-url"}
     const detection = base64Module.detect(input);

@@ -35,7 +35,7 @@ const decodeSegment = (
   input: string,
 ): { decoded: string; variant: "base64" | "base64url" } | null => {
   const trimmed = input.trim();
-  if (trimmed.length < 8) return null;
+  if (trimmed.length < 4) return null;
   if (!/[A-Za-z]/.test(trimmed)) return null;
 
   const isUrlLike = BASE64URL_REGEX.test(trimmed);
