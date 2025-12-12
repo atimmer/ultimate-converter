@@ -29,6 +29,11 @@ describe("resolver", () => {
     expect(result?.module.id).toBe("force");
   });
 
+  it("detects moment (torque) notation", () => {
+    const result = resolveConversion("10 N·m", modules);
+    expect(result?.module.id).toBe("moment");
+  });
+
   it("detects Beaufort windspeed notation", () => {
     const result = resolveConversion("1Bft", modules);
     expect(result?.module.id).toBe("windspeed");

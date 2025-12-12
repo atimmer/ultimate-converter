@@ -5,6 +5,7 @@ import dataSize from "./dataSize";
 import force from "./force";
 import jwt from "./jwt";
 import mass from "./mass";
+import moment from "./moment";
 import power from "./power";
 import pressure from "./pressure";
 import speed from "./speed";
@@ -27,6 +28,7 @@ export const modules: ConversionModule[] = [
   force,
   jwt,
   mass,
+  moment,
   power,
   pressure,
   speed,
