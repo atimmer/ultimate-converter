@@ -7,6 +7,7 @@ import jwt from "./jwt";
 import mass from "./mass";
 import power from "./power";
 import pressure from "./pressure";
+import rainRate from "./rainRate";
 import speed from "./speed";
 import temperature from "./temperature";
 import volume from "./volume";
@@ -29,6 +30,7 @@ export const modules: ConversionModule[] = [
   mass,
   power,
   pressure,
+  rainRate,
   speed,
   temperature,
   volume,

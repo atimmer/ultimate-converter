@@ -39,6 +39,11 @@ describe("resolver", () => {
     expect(result?.module.id).toBe("pressure");
   });
 
+  it("detects radar reflectivity dBZ notation", () => {
+    const result = resolveConversion("40 dBZ", modules);
+    expect(result?.module.id).toBe("rain-rate");
+  });
+
   it("detects data-size notation", () => {
     const result = resolveConversion("1024mb", modules);
     expect(result?.module.id).toBe("data-size");
