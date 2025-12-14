@@ -1,10 +1,26 @@
 import { describe, expect, it } from "bun:test";
-import { modules, resolveConversion } from "../index";
+import { modules, resolveConversion, resolveConversions } from "../index";
 
 describe("resolver", () => {
   it("picks color for rgb input", () => {
     const result = resolveConversion("rgb(10, 20, 30)", modules);
     expect(result?.module.id).toBe("color");
+  });
+
+  it('detects "100f" as both temperature and color (prefers temperature)', () => {
+    const temperature = modules.find((module) => module.id === "temperature");
+    const color = modules.find((module) => module.id === "color");
+    expect(temperature).toBeTruthy();
+    expect(color).toBeTruthy();
+
+    expect(temperature?.detect("100f")).not.toBeNull();
+    expect(color?.detect("100f")).not.toBeNull();
+
+    const results = resolveConversions("100f", modules);
+    expect(results.map((r) => r.module.id)).toEqual(["temperature", "color"]);
+
+    const result = resolveConversion("100f", modules);
+    expect(result?.module.id).toBe("temperature");
   });
 
   it("biases toward configured module when scores tie", () => {
