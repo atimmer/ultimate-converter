@@ -32,6 +32,30 @@ describe("moment module", () => {
     expect(normalized?.newtonMeters).toBeCloseTo(13.558179483314, 10);
   });
 
+  it("detects pound-foot variants without force suffix", () => {
+    const expected = 5 * 4.4482216152605 * 0.3048;
+
+    const lbFt = momentModule.detect("5 lb-ft")?.normalizedInput as
+      | { newtonMeters: number }
+      | undefined;
+    expect(lbFt?.newtonMeters).toBeCloseTo(expected, 10);
+
+    const lbsFt = momentModule.detect("5 lbs-ft")?.normalizedInput as
+      | { newtonMeters: number }
+      | undefined;
+    expect(lbsFt?.newtonMeters).toBeCloseTo(expected, 10);
+
+    const poundFoot = momentModule.detect("5 pound-foot")?.normalizedInput as
+      | { newtonMeters: number }
+      | undefined;
+    expect(poundFoot?.newtonMeters).toBeCloseTo(expected, 10);
+
+    const footPounds = momentModule.detect("5 foot pounds")?.normalizedInput as
+      | { newtonMeters: number }
+      | undefined;
+    expect(footPounds?.newtonMeters).toBeCloseTo(expected, 10);
+  });
+
   it("detects kgf·cm and normalizes to N·m", () => {
     const detection = momentModule.detect("100 kgf·cm");
     const normalized = detection?.normalizedInput as

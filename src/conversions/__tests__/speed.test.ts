@@ -26,6 +26,27 @@ describe("speed module", () => {
     expect(normalized.metersPerSecond).toBeCloseTo(26.8224, 4);
   });
 
+  it("detects spelled-out speed units", () => {
+    const metersPerSecond = speedModule.detect("10 meters per second")
+      ?.normalizedInput as { metersPerSecond: number } | undefined;
+    expect(metersPerSecond?.metersPerSecond).toBeCloseTo(10, 6);
+
+    const milesPerHour = speedModule.detect("55 miles per hour")
+      ?.normalizedInput as { metersPerSecond: number } | undefined;
+    expect(milesPerHour?.metersPerSecond).toBeCloseTo(55 / 2.2369362921, 6);
+
+    const kilometersPerHour = speedModule.detect("88 kilometers per hour")
+      ?.normalizedInput as { metersPerSecond: number } | undefined;
+    expect(kilometersPerHour?.metersPerSecond).toBeCloseTo(88 / 3.6, 6);
+
+    const milesPerHourSlash = speedModule.detect("60 mi/hr")
+      ?.normalizedInput as { metersPerSecond: number } | undefined;
+    expect(milesPerHourSlash?.metersPerSecond).toBeCloseTo(
+      60 / 2.2369362921,
+      6,
+    );
+  });
+
   it("converts normalized speed to rows", () => {
     const detection = speedModule.detect("10 m/s");
     if (!detection) throw new Error("Detection failed");

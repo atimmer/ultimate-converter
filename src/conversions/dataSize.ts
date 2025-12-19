@@ -17,19 +17,31 @@ const UNIT_FACTORS: Record<string, number> = {
   kb: 1024,
   kilobyte: 1024,
   kilobytes: 1024,
+  kib: 1024,
+  kibibyte: 1024,
+  kibibytes: 1024,
   mb: 1024 ** 2,
   megabyte: 1024 ** 2,
   megabytes: 1024 ** 2,
+  mib: 1024 ** 2,
+  mebibyte: 1024 ** 2,
+  mebibytes: 1024 ** 2,
   gb: 1024 ** 3,
   gigabyte: 1024 ** 3,
   gigabytes: 1024 ** 3,
+  gib: 1024 ** 3,
+  gibibyte: 1024 ** 3,
+  gibibytes: 1024 ** 3,
   tb: 1024 ** 4,
   terabyte: 1024 ** 4,
   terabytes: 1024 ** 4,
+  tib: 1024 ** 4,
+  tebibyte: 1024 ** 4,
+  tebibytes: 1024 ** 4,
 };
 
 const DATA_SIZE_REGEX =
-  /^(?<value>-?\d+(?:\.\d+)?)\s*(?<unit>b|bytes?|kb|kilobytes?|mb|megabytes?|gb|gigabytes?|tb|terabytes?)\s*$/i;
+  /^(?<value>-?\d+(?:\.\d+)?)\s*(?<unit>b|bytes?|kb|kilobytes?|kib|kibibytes?|mb|megabytes?|mib|mebibytes?|gb|gigabytes?|gib|gibibytes?|tb|terabytes?|tib|tebibytes?)\s*$/i;
 
 const format = (value: number) => {
   const abs = Math.abs(value);

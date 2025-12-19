@@ -11,7 +11,7 @@ type NormalizedSpeed = {
 };
 
 const SPEED_REGEX =
-  /^(?<value>-?\d+(?:\.\d+)?)\s*(?<unit>km\/h|kph|kmh|kmph|m\/s|mps|mph|mi\/h|miles\s+per\s+hour)\s*$/i;
+  /^(?<value>-?\d+(?:\.\d+)?)\s*(?<unit>km\s*\/\s*h|kph|kmh|kmph|kilometers?\s+per\s+hour|kilometres?\s+per\s+hour|m\s*\/\s*s|mps|meters?\s+per\s+second|metres?\s+per\s+second|mph|mi\s*\/\s*h|mi\s*\/\s*hr|miles\s+per\s+hour|miles\s*\/\s*hour|miles\s*\/\s*hr)\s*$/i;
 const KMH_PER_MPS = 3.6;
 const MPH_PER_MPS = 2.2369362921;
 
@@ -32,16 +32,36 @@ const detect = (raw: string): Detection | null => {
   const value = parseFloat(match.groups.value);
   if (!Number.isFinite(value)) return null;
 
-  const unit = match.groups.unit.toLowerCase();
+  const unit = match.groups.unit
+    .toLowerCase()
+    .replace(/[\s._-]+/g, "")
+    .replace(/\//g, "per");
   let metersPerSecond: number;
-  if (unit.startsWith("m/") || unit.startsWith("mps")) {
+  if (
+    unit.startsWith("mps") ||
+    unit.startsWith("mpers") ||
+    unit.startsWith("meterpersecond") ||
+    unit.startsWith("meterspersecond") ||
+    unit.startsWith("metrepersecond") ||
+    unit.startsWith("metrespersecond")
+  ) {
     metersPerSecond = value;
-  } else if (unit.startsWith("km")) {
+  } else if (
+    unit.startsWith("kmh") ||
+    unit.startsWith("kmph") ||
+    unit.startsWith("kph") ||
+    unit.startsWith("kmperh") ||
+    unit.startsWith("kilometerperhour") ||
+    unit.startsWith("kilometersperhour") ||
+    unit.startsWith("kilometreperhour") ||
+    unit.startsWith("kilometresperhour")
+  ) {
     metersPerSecond = value / KMH_PER_MPS;
   } else if (
     unit.startsWith("mph") ||
-    unit.startsWith("mi/") ||
-    unit.startsWith("miles")
+    unit.startsWith("miperh") ||
+    unit.startsWith("miperhr") ||
+    unit.startsWith("milesperhour")
   ) {
     metersPerSecond = value / MPH_PER_MPS;
   } else {

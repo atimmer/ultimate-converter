@@ -13,8 +13,17 @@ describe("resolver", () => {
     expect(temperature).toBeTruthy();
     expect(color).toBeTruthy();
 
-    expect(temperature?.detect("100f")).not.toBeNull();
-    expect(color?.detect("100f")).not.toBeNull();
+    const tempDetection = temperature?.detect("100f");
+    const tempNormalized = tempDetection?.normalizedInput as
+      | { kelvin: number }
+      | undefined;
+    expect(tempNormalized?.kelvin).toBeCloseTo(310.9278, 4);
+
+    const colorDetection = color?.detect("100f");
+    const colorNormalized = colorDetection?.normalizedInput as
+      | { hex: string }
+      | undefined;
+    expect(colorNormalized?.hex).toBe("#110000FF");
 
     const results = resolveConversions("100f", modules);
     expect(results.map((r) => r.module.id)).toEqual(["temperature", "color"]);

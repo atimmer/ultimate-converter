@@ -26,7 +26,12 @@ describe("rain-rate module", () => {
 
   it("supports mm/hr aliases", () => {
     const detection = rainRateModule.detect("10 mm/hr");
-    expect(detection).not.toBeNull();
+    const normalized = detection?.normalizedInput as {
+      millimetersPerHour: number;
+      dbz: number;
+    };
+    expect(normalized.millimetersPerHour).toBeCloseTo(10, 8);
+    expect(normalized.dbz).toBeCloseTo(39.01, 2);
   });
 
   it("renders output rows", () => {

@@ -12,13 +12,14 @@ type NormalizedTemperature = {
 
 // Examples: "100 C", "100°C", "32 F", "273.15 K", "degC", "deg F"
 const TEMPERATURE_REGEX =
-  /^(?<value>-?\d+(?:\.\d+)?)\s*(?<unit>(?:°|º)?\s*(?:c|f)\b|k\b|celsius|fahrenheit|kelvin|deg\s*[cf])\s*$/i;
+  /^(?<value>-?\d+(?:\.\d+)?)\s*(?<unit>(?:°|º)?\s*(?:c|f)\b|k\b|celsius|fahrenheit|kelvin|deg\.?\s*[cf]|degrees?\s*(?:c|f|celsius|fahrenheit))\s*$/i;
 
 const normalizeSpacing = (raw: string) => raw.replace(/[\u00a0\u202f]/g, " ");
 
 const normalizeUnit = (unit: string) =>
   unit
     .toLowerCase()
+    .replace(/degrees?/g, "")
     .replace(/[\s._-]+/g, "")
     .replaceAll("°", "")
     .replaceAll("º", "");

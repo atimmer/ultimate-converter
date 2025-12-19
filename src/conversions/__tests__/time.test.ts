@@ -13,6 +13,32 @@ describe("time module", () => {
     expect(normalized.sourceUnit).toBe("minute");
   });
 
+  it("detects dotted abbreviations", () => {
+    const seconds = timeModule.detect("10 sec.")?.normalizedInput as
+      | { seconds: number; sourceUnit: string }
+      | undefined;
+    expect(seconds?.seconds).toBe(10);
+    expect(seconds?.sourceUnit).toBe("second");
+
+    const minutes = timeModule.detect("10 mins.")?.normalizedInput as
+      | { seconds: number; sourceUnit: string }
+      | undefined;
+    expect(minutes?.seconds).toBe(600);
+    expect(minutes?.sourceUnit).toBe("minute");
+
+    const hours = timeModule.detect("10 hrs.")?.normalizedInput as
+      | { seconds: number; sourceUnit: string }
+      | undefined;
+    expect(hours?.seconds).toBe(36000);
+    expect(hours?.sourceUnit).toBe("hour");
+
+    const months = timeModule.detect("10 mos.")?.normalizedInput as
+      | { seconds: number; sourceUnit: string }
+      | undefined;
+    expect(months?.seconds).toBeCloseTo(10 * 60 * 60 * 24 * 7 * (52 / 12), 6);
+    expect(months?.sourceUnit).toBe("month");
+  });
+
   it("renders 90m as 1h30m and 5400 seconds", () => {
     const detection = timeModule.detect("90m");
     if (!detection) throw new Error("Detection failed");

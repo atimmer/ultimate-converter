@@ -18,6 +18,22 @@ describe("power module", () => {
     expect(normalized?.watts).toBeCloseTo(745.699872, 6);
   });
 
+  it("detects horsepower spelled out", () => {
+    const horsePower = powerModule.detect("1 horse power")?.normalizedInput as
+      | { watts: number }
+      | undefined;
+    expect(horsePower?.watts).toBeCloseTo(745.699872, 6);
+
+    const horsePowerHyphen = powerModule.detect("1 horse-power")
+      ?.normalizedInput as { watts: number } | undefined;
+    expect(horsePowerHyphen?.watts).toBeCloseTo(745.699872, 6);
+
+    const hp = powerModule.detect("1 hp.")?.normalizedInput as
+      | { watts: number }
+      | undefined;
+    expect(hp?.watts).toBeCloseTo(745.699872, 6);
+  });
+
   it("detects compact uppercase input with no space", () => {
     const detection = powerModule.detect("100W");
     expect(detection?.normalizedInput).toEqual({ watts: 100 });

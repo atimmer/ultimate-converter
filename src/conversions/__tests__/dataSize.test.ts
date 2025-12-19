@@ -14,6 +14,17 @@ describe("data size module", () => {
     expect(normalized.bytes).toBe(2048 * 1024);
   });
 
+  it("detects IEC binary unit aliases", () => {
+    const kib = dataSizeModule.detect("1 KiB");
+    const mib = dataSizeModule.detect("1 MiB");
+    const gib = dataSizeModule.detect("1 GiB");
+    const tib = dataSizeModule.detect("1 TiB");
+    expect(kib?.normalizedInput).toEqual({ bytes: 1024 });
+    expect(mib?.normalizedInput).toEqual({ bytes: 1024 ** 2 });
+    expect(gib?.normalizedInput).toEqual({ bytes: 1024 ** 3 });
+    expect(tib?.normalizedInput).toEqual({ bytes: 1024 ** 4 });
+  });
+
   it("converts normalized data size into rows", () => {
     const detection = dataSizeModule.detect("1024 mb");
     if (!detection) throw new Error("Detection failed");

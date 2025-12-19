@@ -12,7 +12,7 @@ type NormalizedVolume = {
 
 // Note: We intentionally avoid plain "oz" to prevent confusion with weight (ounces).
 const VOLUME_REGEX =
-  /^(?<value>-?\d+(?:\.\d+)?)\s*(?<unit>l|liters?|litres?|ml|milliliters?|millilitres?|m(?:\^?3|³)|cubic\s+meters?|cubic\s+metres?|cm(?:\^?3|³)|cc|cubic\s+centimeters?|cubic\s+centimetres?|gal|gallons?|qt|quarts?|pt|pints?|cups?|fl\s*oz|floz|fluid\s+ounces?|tbsp|tablespoons?|tsp|teaspoons?)\s*$/i;
+  /^(?<value>-?\d+(?:\.\d+)?)\s*(?<unit>l\.?|liters?|litres?|ml|milliliters?|millilitres?|m(?:\^?3|³)|cubic\s+meters?|cubic\s+metres?|cm(?:\^?3|³)|cc|cubic\s+centimeters?|cubic\s+centimetres?|gal\.?|gals?|gallons?|qt\.?|qts?|quarts?|pt\.?|pts?|pints?|cups?|fl\.?\s*oz\.?|floz|fluid\s+ounces?|fluid\s+oz|tbsp\.?|tbs\.?|tbl\.?|tbls?\.?|tablespoons?|tsp\.?|teaspoons?)\s*$/i;
 
 const LITERS_PER_ML = 0.001;
 const LITERS_PER_M3 = 1000;
@@ -64,21 +64,28 @@ const detect = (raw: string): Detection | null => {
     unit.startsWith("cubic centimeter")
   ) {
     liters = value * LITERS_PER_ML;
-  } else if (unit === "gal" || unit.startsWith("gallon")) {
+  } else if (unit === "gal" || unit === "gals" || unit.startsWith("gallon")) {
     liters = value * LITERS_PER_US_GALLON;
-  } else if (unit === "qt" || unit.startsWith("quart")) {
+  } else if (unit === "qt" || unit === "qts" || unit.startsWith("quart")) {
     liters = value * LITERS_PER_US_QUART;
-  } else if (unit === "pt" || unit.startsWith("pint")) {
+  } else if (unit === "pt" || unit === "pts" || unit.startsWith("pint")) {
     liters = value * LITERS_PER_US_PINT;
   } else if (unit === "cup" || unit === "cups") {
     liters = value * LITERS_PER_US_CUP;
   } else if (
     unit === "floz" ||
     unit.startsWith("fl oz") ||
-    unit.startsWith("fluid ounce")
+    unit.startsWith("fluid ounce") ||
+    unit.startsWith("fluid oz")
   ) {
     liters = value * LITERS_PER_US_FL_OZ;
-  } else if (unit === "tbsp" || unit.startsWith("tablespoon")) {
+  } else if (
+    unit === "tbsp" ||
+    unit === "tbs" ||
+    unit === "tbl" ||
+    unit === "tbls" ||
+    unit.startsWith("tablespoon")
+  ) {
     liters = value * LITERS_PER_US_TBSP;
   } else if (unit === "tsp" || unit.startsWith("teaspoon")) {
     liters = value * LITERS_PER_US_TSP;

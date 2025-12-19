@@ -6,7 +6,10 @@ describe("length module", () => {
     const samples = ["10 feet", "10 foot", "10 ft", "10 ft.", "10'"];
     for (const sample of samples) {
       const detection = lengthModule.detect(sample);
-      expect(detection).not.toBeNull();
+      const normalized = detection?.normalizedInput as
+        | { meters: number }
+        | undefined;
+      expect(normalized?.meters).toBeCloseTo(3.048, 6);
     }
   });
 
@@ -14,6 +17,38 @@ describe("length module", () => {
     const detection = lengthModule.detect("10 feet");
     const normalized = detection?.normalizedInput as { meters: number };
     expect(normalized.meters).toBeCloseTo(3.048, 6);
+  });
+
+  it("detects other common US length units", () => {
+    const inches = lengthModule.detect("12 in")?.normalizedInput as
+      | { meters: number }
+      | undefined;
+    expect(inches?.meters).toBeCloseTo(0.3048, 6);
+
+    const inchesSymbol = lengthModule.detect('12"')?.normalizedInput as
+      | { meters: number }
+      | undefined;
+    expect(inchesSymbol?.meters).toBeCloseTo(0.3048, 6);
+
+    const yards = lengthModule.detect("3 yd")?.normalizedInput as
+      | { meters: number }
+      | undefined;
+    expect(yards?.meters).toBeCloseTo(2.7432, 6);
+
+    const mile = lengthModule.detect("1 mile")?.normalizedInput as
+      | { meters: number }
+      | undefined;
+    expect(mile?.meters).toBeCloseTo(1609.344, 6);
+
+    const centimeters = lengthModule.detect("100 cm")?.normalizedInput as
+      | { meters: number }
+      | undefined;
+    expect(centimeters?.meters).toBeCloseTo(1, 6);
+
+    const meters = lengthModule.detect("2 m")?.normalizedInput as
+      | { meters: number }
+      | undefined;
+    expect(meters?.meters).toBeCloseTo(2, 6);
   });
 
   it("returns rows for common length units", () => {

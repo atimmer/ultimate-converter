@@ -113,7 +113,8 @@ const BEAUFORT_RANGES: BeaufortRange[] = [
   },
 ];
 
-const WINDSPEED_REGEX = /^(?<value>\d{1,2})\s*(?<unit>bft|beaufort)\s*$/i;
+const WINDSPEED_REGEX =
+  /^(?<value>\d{1,2})\s*(?<unit>bft\.?|bf\.?|beaufort)\s*$/i;
 
 const formatFixed1 = (value: number) => formatFixedTrimmed(value, 1);
 const formatInt = (value: number) => formatFixedTrimmed(value, 0);

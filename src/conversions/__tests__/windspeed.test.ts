@@ -4,8 +4,19 @@ import windspeedModule from "../windspeed";
 describe("windspeed module (Beaufort)", () => {
   it("detects Beaufort shorthand like 1Bft", () => {
     const detection = windspeedModule.detect("1Bft");
-    expect(detection).not.toBeNull();
     expect(detection?.normalizedInput).toEqual({ beaufort: 1 });
+  });
+
+  it("detects Beaufort aliases", () => {
+    expect(windspeedModule.detect("5 bf")?.normalizedInput).toEqual({
+      beaufort: 5,
+    });
+    expect(windspeedModule.detect("5 bft.")?.normalizedInput).toEqual({
+      beaufort: 5,
+    });
+    expect(windspeedModule.detect("5 beaufort")?.normalizedInput).toEqual({
+      beaufort: 5,
+    });
   });
 
   it("rejects out-of-range Beaufort values", () => {

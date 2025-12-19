@@ -79,13 +79,19 @@ const detectMomentFromUnitKey = (
 
   // Imperial / US customary (accept "lb" as common shorthand for lbf in torque contexts)
   const isPoundForce = (s: string) =>
-    s === "lbf" || s === "lb" || s === "poundforce" || s === "poundsforce";
+    s === "lbf" ||
+    s === "lb" ||
+    s === "lbs" ||
+    s === "pound" ||
+    s === "pounds" ||
+    s === "poundforce" ||
+    s === "poundsforce";
   const isFoot = (s: string) => s === "ft" || s === "foot" || s === "feet";
   const isInch = (s: string) => s === "in" || s === "inch" || s === "inches";
 
   // Support "lbf·ft", "ft·lbf", "lbft", "ftlb", "poundforcefoot", etc.
   const footPoundMatch = unitKey.match(
-    /^(?<a>lbf|lb|poundforce|poundsforce)(?<b>ft|foot|feet)$|^(?<c>ft|foot|feet)(?<d>lbf|lb|poundforce|poundsforce)$/,
+    /^(?<a>lbf|lb|lbs|pound|pounds|poundforce|poundsforce)(?<b>ft|foot|feet)$|^(?<c>ft|foot|feet)(?<d>lbf|lb|lbs|pound|pounds|poundforce|poundsforce)$/,
   );
   if (footPoundMatch?.groups) {
     const a = footPoundMatch.groups.a;
@@ -102,7 +108,7 @@ const detectMomentFromUnitKey = (
   }
 
   const inchPoundMatch = unitKey.match(
-    /^(?<a>lbf|lb|poundforce|poundsforce)(?<b>in|inch|inches)$|^(?<c>in|inch|inches)(?<d>lbf|lb|poundforce|poundsforce)$/,
+    /^(?<a>lbf|lb|lbs|pound|pounds|poundforce|poundsforce)(?<b>in|inch|inches)$|^(?<c>in|inch|inches)(?<d>lbf|lb|lbs|pound|pounds|poundforce|poundsforce)$/,
   );
   if (inchPoundMatch?.groups) {
     const a = inchPoundMatch.groups.a;

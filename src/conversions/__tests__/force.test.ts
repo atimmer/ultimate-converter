@@ -31,6 +31,24 @@ describe("force module", () => {
     expect(normalized?.newtons).toBeCloseTo(22.2411080763025, 10);
   });
 
+  it("detects pound-force spellings with spaces", () => {
+    const expected = 3 * 4.4482216152605;
+
+    const lbForce = forceModule.detect("3 lb force")?.normalizedInput as
+      | { newtons: number }
+      | undefined;
+    expect(lbForce?.newtons).toBeCloseTo(expected, 10);
+
+    const lbsForce = forceModule.detect("3 lbs force")?.normalizedInput as
+      | { newtons: number }
+      | undefined;
+    expect(lbsForce?.newtons).toBeCloseTo(expected, 10);
+
+    const poundsForce = forceModule.detect("3 pounds force")
+      ?.normalizedInput as { newtons: number } | undefined;
+    expect(poundsForce?.newtons).toBeCloseTo(expected, 10);
+  });
+
   it("detects non-breaking spaces", () => {
     const detection = forceModule.detect("100\u00a0kgf");
     const normalized = detection?.normalizedInput as

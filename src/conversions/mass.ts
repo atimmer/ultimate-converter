@@ -7,7 +7,7 @@ import type {
 import { formatFixedTrimmed } from "./formatNumber";
 
 const MASS_REGEX =
-  /^(?<value>-?\d+(?:\.\d+)?)\s*(?<unit>kg|kilogram|kilograms|lb|lbs|pound|pounds)\s*$/i;
+  /^(?<value>-?\d+(?:\.\d+)?)\s*(?<unit>kg\.?|kgs|kilogram|kilograms|lb\.?|lbs\.?|pound|pounds)\s*$/i;
 const KG_TO_LB = 2.20462262;
 
 type NormalizedMass = {

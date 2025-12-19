@@ -7,9 +7,13 @@ import type {
 import { formatFixedTrimmed } from "./formatNumber";
 
 const LENGTH_REGEX =
-  /^(?<value>-?\d+(?:\.\d+)?)\s*(?<unit>ft\.?|foot\.?|feet\.?|')\s*$/i;
+  /^(?<value>-?\d+(?:\.\d+)?)\s*(?<unit>ft\.?|foot\.?|feet\.?|'|in\.?|inch(?:es)?\.?|\"|yd\.?|yds\.?|yard(?:s)?\.?|mi\.?|mile(?:s)?\.?|m\.?|meter(?:s)?\.?|metre(?:s)?\.?|cm\.?|centimeter(?:s)?\.?|centimetre(?:s)?\.?)\s*$/i;
 
 const METERS_PER_FOOT = 0.3048;
+const METERS_PER_INCH = 0.0254;
+const METERS_PER_YARD = METERS_PER_FOOT * 3;
+const METERS_PER_MILE = METERS_PER_FOOT * 5280;
+const METERS_PER_CM = 0.01;
 const INCHES_PER_FOOT = 12;
 const FEET_PER_YARD = 3;
 const FEET_PER_MILE = 5280;
@@ -19,19 +23,65 @@ type NormalizedLength = {
   meters: number;
 };
 
+const normalizeSpacing = (raw: string) => raw.replace(/[\u00a0\u202f]/g, " ");
+
+const normalizeUnit = (unit: string) =>
+  unit.toLowerCase().replace(/\./g, "").replace(/\s+/g, "").trim();
+
 const detect = (raw: string): Detection | null => {
-  const match = raw.trim().match(LENGTH_REGEX);
+  const match = normalizeSpacing(raw).trim().match(LENGTH_REGEX);
   if (!match || !match.groups) return null;
 
   const value = parseFloat(match.groups.value);
   if (!Number.isFinite(value)) return null;
 
+  const unit = normalizeUnit(match.groups.unit);
+  let meters: number;
+
+  if (unit === "ft" || unit === "foot" || unit === "feet" || unit === "'") {
+    meters = value * METERS_PER_FOOT;
+  } else if (
+    unit === "in" ||
+    unit === "inch" ||
+    unit === "inches" ||
+    unit === '"'
+  ) {
+    meters = value * METERS_PER_INCH;
+  } else if (
+    unit === "yd" ||
+    unit === "yds" ||
+    unit === "yard" ||
+    unit === "yards"
+  ) {
+    meters = value * METERS_PER_YARD;
+  } else if (unit === "mi" || unit === "mile" || unit === "miles") {
+    meters = value * METERS_PER_MILE;
+  } else if (
+    unit === "m" ||
+    unit === "meter" ||
+    unit === "meters" ||
+    unit === "metre" ||
+    unit === "metres"
+  ) {
+    meters = value;
+  } else if (
+    unit === "cm" ||
+    unit === "centimeter" ||
+    unit === "centimeters" ||
+    unit === "centimetre" ||
+    unit === "centimetres"
+  ) {
+    meters = value * METERS_PER_CM;
+  } else {
+    return null;
+  }
+
   const normalized: NormalizedLength = {
-    meters: value * METERS_PER_FOOT,
+    meters,
   };
 
   return {
-    score: 0.8,
+    score: unit === "m" ? 0.7 : 0.8,
     normalizedInput: normalized,
   };
 };

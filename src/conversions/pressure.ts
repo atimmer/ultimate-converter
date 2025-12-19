@@ -10,13 +10,14 @@ type NormalizedPressure = {
 };
 
 const PRESSURE_REGEX =
-  /^(?<value>-?\d+(?:\.\d+)?)\s*(?<unit>atm|atmosphere(?:s)?|mm\s*hg|mmhg|mbar|millibar(?:s)?|hpa|hectopascal(?:s)?)\s*$/i;
+  /^(?<value>-?\d+(?:\.\d+)?)\s*(?<unit>atm|atmosphere(?:s)?|mm\s*hg|mmhg|mbar|millibar(?:s)?|hpa|hectopascal(?:s)?|psi\.?|pounds?\s+per\s+square\s+inch)\s*$/i;
 
 // Exact by definition for "standard atmosphere"
 const PA_PER_ATM = 101_325;
 const PA_PER_HPA = 100;
 const PA_PER_MBAR = 100; // 1 mbar = 1 hPa = 100 Pa
 const PA_PER_MMHG = PA_PER_ATM / 760; // 1 atm = 760 mmHg (exact), so 1 mmHg = 101325/760 Pa
+const PA_PER_PSI = 6894.757293168;
 
 const format = (value: number) => {
   const abs = Math.abs(value);
@@ -37,7 +38,10 @@ const detect = (raw: string): Detection | null => {
   const value = parseFloat(match.groups.value);
   if (!Number.isFinite(value)) return null;
 
-  const unitKey = match.groups.unit.toLowerCase().replace(/\s+/g, "");
+  const unitKey = match.groups.unit
+    .toLowerCase()
+    .replace(/\./g, "")
+    .replace(/\s+/g, "");
 
   let pascals: number;
   if (unitKey === "atm" || unitKey.startsWith("atmosphere")) {
@@ -48,6 +52,8 @@ const detect = (raw: string): Detection | null => {
     pascals = value * PA_PER_MBAR;
   } else if (unitKey === "mmhg") {
     pascals = value * PA_PER_MMHG;
+  } else if (unitKey === "psi" || unitKey === "poundspersquareinch") {
+    pascals = value * PA_PER_PSI;
   } else {
     return null;
   }
@@ -65,6 +71,7 @@ const toRows = ({ pascals }: NormalizedPressure): OutputRow[] => {
   const hPa = pascals / PA_PER_HPA;
   const mbar = pascals / PA_PER_MBAR;
   const mmHg = pascals / PA_PER_MMHG;
+  const psi = pascals / PA_PER_PSI;
 
   return [
     {
@@ -90,6 +97,12 @@ const toRows = ({ pascals }: NormalizedPressure): OutputRow[] => {
       value: `${format(mmHg)} mmHg`,
       copy: mmHg.toString(),
       hint: "Common in medicine",
+    },
+    {
+      label: "Pounds per square inch",
+      value: `${format(psi)} psi`,
+      copy: psi.toString(),
+      hint: "US customary",
     },
   ];
 };

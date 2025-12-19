@@ -15,7 +15,7 @@ type NormalizedTime = {
 
 // Examples: "90m", "1.5 h", "3600 seconds", "2 weeks", "1 month"
 const TIME_REGEX =
-  /^(?<value>-?\d+(?:\.\d+)?)\s*(?<unit>sec(?:ond)?s?|s|mins?|min(?:ute)?s?|m|hrs?|hr|h|hours?|days?|d|wks?|wk|weeks?|w|mos?|mo|months?|month)\s*$/i;
+  /^(?<value>-?\d+(?:\.\d+)?)\s*(?<unit>sec\.?(?:ond)?s?|secs\.?|s|mins?\.?|min\.?(?:ute)?s?|m|hrs?\.?|hr\.?|h|hours?\.?|days?\.?|d|wks?\.?|wk\.?|weeks?\.?|w|mos?\.?|mo\.?|months?\.?|month)\s*$/i;
 
 // Exact units (by definition)
 const SECONDS_PER_MINUTE = 60;

@@ -11,7 +11,7 @@ type NormalizedPower = {
 };
 
 const POWER_REGEX =
-  /^(?<value>-?\d+(?:\.\d+)?)\s*(?<unit>w|watt|watts|kw|kilowatt|kilowatts|mw|megawatt|megawatts|hp|horsepower)\s*$/i;
+  /^(?<value>-?\d+(?:\.\d+)?)\s*(?<unit>w|watt|watts|kw|kilowatt|kilowatts|mw|megawatt|megawatts|hp\.?|horse[-\s]*power|horsepower)\s*$/i;
 
 const WATTS_PER_KILOWATT = 1000;
 const WATTS_PER_MEGAWATT = 1_000_000;
@@ -26,7 +26,7 @@ const detect = (raw: string): Detection | null => {
   const value = parseFloat(match.groups.value);
   if (!Number.isFinite(value)) return null;
 
-  const unit = match.groups.unit.toLowerCase();
+  const unit = match.groups.unit.toLowerCase().replace(/[\s._-]+/g, "");
   let watts: number;
 
   if (unit === "w" || unit.startsWith("watt")) {

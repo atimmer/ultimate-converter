@@ -55,9 +55,9 @@ describe("base64 module", () => {
   it("encodes any text to base64 and base64url", () => {
     const input = "Encode me!";
     const payload = base64EncodeModule.convert(input);
-    expect(payload).not.toBeNull();
 
     const rows = payload?.rows ?? [];
+    expect(rows).toHaveLength(2);
     const standard = rows.find((row) => row.label === "Base64 (standard)");
     const urlSafe = rows.find((row) => row.label === "Base64 (URL-safe)");
 

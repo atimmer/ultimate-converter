@@ -13,7 +13,7 @@ type NormalizedForce = {
 // Accepts common force units.
 // Examples: "10 N", "2.5kN", "15 lbf", "100kgf", "5 pound-force"
 const FORCE_REGEX =
-  /^(?<value>-?\d+(?:\.\d+)?)\s*(?<unit>n|newton|newtons|kn|kilonewton|kilonewtons|lbf|lb[-_\s]*f|pound[-\s]*force|pounds[-\s]*force|kgf|kilogram[-\s]*force|kilograms[-\s]*force)\s*$/i;
+  /^(?<value>-?\d+(?:\.\d+)?)\s*(?<unit>n|newton|newtons|kn|kilonewton|kilonewtons|lbf|lb[-_\s]*f|lb[-\s]*force|lbs[-\s]*force|pound[-\s]*force|pounds[-\s]*force|kgf|kilogram[-\s]*force|kilograms[-\s]*force)\s*$/i;
 
 const NEWTONS_PER_KILONEWTON = 1000;
 const NEWTONS_PER_LBF = 4.4482216152605; // exact enough for conversions
@@ -37,6 +37,8 @@ const detect = (raw: string): Detection | null => {
     newtons = value * NEWTONS_PER_KILONEWTON;
   } else if (
     unit === "lbf" ||
+    unit === "lbforce" ||
+    unit === "lbsforce" ||
     unit === "poundforce" ||
     unit === "poundsforce"
   ) {

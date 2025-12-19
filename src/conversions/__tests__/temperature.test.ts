@@ -26,6 +26,21 @@ describe("temperature module", () => {
     expect(normalized?.kelvin).toBeCloseTo(273.15, 6);
   });
 
+  it("detects degree words and abbreviations", () => {
+    const fahrenheit = temperatureModule.detect("100 degrees fahrenheit")
+      ?.normalizedInput as { kelvin: number } | undefined;
+    expect(fahrenheit?.kelvin).toBeCloseTo(310.9278, 4);
+
+    const degreeF = temperatureModule.detect("100 degree f")
+      ?.normalizedInput as { kelvin: number } | undefined;
+    expect(degreeF?.kelvin).toBeCloseTo(310.9278, 4);
+
+    const degreeC = temperatureModule.detect("100 deg. C")?.normalizedInput as
+      | { kelvin: number }
+      | undefined;
+    expect(degreeC?.kelvin).toBeCloseTo(373.15, 6);
+  });
+
   it("detects kelvin input", () => {
     const detection = temperatureModule.detect("273.15 K");
     const normalized = detection?.normalizedInput as
