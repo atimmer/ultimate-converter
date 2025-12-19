@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { SuggestionForm } from "./SuggestionForm";
 import CopyButton from "./CopyButton";
 import {
@@ -18,6 +19,18 @@ type OmniConverterProps = {
   preferredAlwaysModuleId?: string;
   intro?: React.ReactNode;
   defaultValue?: string;
+};
+
+const INPUT_PARAM = "input";
+const PINNED_PARAM = "pinned";
+
+const parsePinnedParam = (value: string | null) => {
+  if (!value) return null;
+  const trimmed = value
+    .split(",")
+    .map((entry) => entry.trim())
+    .find(Boolean);
+  return trimmed ?? null;
 };
 
 const ResultRows = ({ rows }: { rows: OutputRow[] }) => (
@@ -55,13 +68,32 @@ export default function OmniConverter({
   intro,
   defaultValue,
 }: OmniConverterProps) {
-  const [input, setInput] = useState(defaultValue ?? "");
-  const [focusedModuleId, setFocusedModuleId] = useState<string | null>(null);
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
+  const inputParam = searchParams.get(INPUT_PARAM);
+  const pinnedParam = searchParams.get(PINNED_PARAM);
+  const input = inputParam ?? defaultValue ?? "";
+  const focusedModuleId = parsePinnedParam(pinnedParam);
 
-  useEffect(() => {
-    textareaRef.current?.focus();
-  }, []);
+  const updateSearch = (updates: { input?: string; pinned?: string | null }) => {
+    const params = new URLSearchParams(searchParams);
+    if (updates.input !== undefined) {
+      params.set(INPUT_PARAM, updates.input);
+    }
+    if (updates.pinned !== undefined) {
+      if (updates.pinned) {
+        params.set(PINNED_PARAM, updates.pinned);
+      } else {
+        params.delete(PINNED_PARAM);
+      }
+    }
+    const nextSearch = params.toString();
+    if (nextSearch === searchParams.toString()) return;
+    const nextUrl =
+      nextSearch.length > 0 ? `${pathname}?${nextSearch}` : pathname;
+    router.replace(nextUrl, { scroll: false });
+  };
 
   const trimmedInput = useMemo(() => input.trim(), [input]);
 
@@ -71,7 +103,8 @@ export default function OmniConverter({
   );
 
   // Backwards compatibility with existing UX assumptions (e.g. helper text).
-  const resolution = resolutions[0] ?? resolveConversion(input, modules, { biasModuleId });
+  const resolution =
+    resolutions[0] ?? resolveConversion(input, modules, { biasModuleId });
 
   const alwaysPreferredId = preferredAlwaysModuleId ?? biasModuleId;
 
@@ -82,16 +115,6 @@ export default function OmniConverter({
       }),
     [input, alwaysPreferredId],
   );
-
-  useEffect(() => {
-    if (!focusedModuleId) return;
-    const stillExists = resolutions.some(
-      (resolutionItem) => resolutionItem.module.id === focusedModuleId,
-    );
-    if (!stillExists) {
-      setFocusedModuleId(null);
-    }
-  }, [focusedModuleId, resolutions]);
 
   const pinnedResolution = useMemo(
     () =>
@@ -140,11 +163,12 @@ export default function OmniConverter({
         <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
           <textarea
             id="omni-input"
-            ref={textareaRef}
             autoFocus
             spellCheck={false}
             value={input}
-            onChange={(event) => setInput(event.target.value)}
+            onChange={(event) =>
+              updateSearch({ input: event.target.value, pinned: null })
+            }
             placeholder="#c044ff, 70 kg, 90 km/h, 2.5 kW, 1000 N, eyJhbGciOi..."
             className="h-40 w-full resize-y rounded-2xl border-0 bg-transparent p-6 text-base font-medium text-slate-900 outline-none focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
@@ -164,9 +188,10 @@ export default function OmniConverter({
                   type="button"
                   key={r.module.id}
                   onClick={() =>
-                    setFocusedModuleId((current) =>
-                      current === r.module.id ? null : r.module.id,
-                    )
+                    updateSearch({
+                      pinned:
+                        focusedModuleId === r.module.id ? null : r.module.id,
+                    })
                   }
                   aria-pressed={focusedModuleId === r.module.id}
                   className={cn(
