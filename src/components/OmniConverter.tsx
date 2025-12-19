@@ -56,6 +56,7 @@ export default function OmniConverter({
   defaultValue,
 }: OmniConverterProps) {
   const [input, setInput] = useState(defaultValue ?? "");
+  const [focusedModuleId, setFocusedModuleId] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
@@ -80,6 +81,26 @@ export default function OmniConverter({
         preferredModuleId: alwaysPreferredId,
       }),
     [input, alwaysPreferredId],
+  );
+
+  useEffect(() => {
+    if (!focusedModuleId) return;
+    const stillExists = resolutions.some(
+      (resolutionItem) => resolutionItem.module.id === focusedModuleId,
+    );
+    if (!stillExists) {
+      setFocusedModuleId(null);
+    }
+  }, [focusedModuleId, resolutions]);
+
+  const pinnedResolution = useMemo(
+    () =>
+      focusedModuleId
+        ? resolutions.find(
+            (resolutionItem) => resolutionItem.module.id === focusedModuleId,
+          ) ?? null
+        : null,
+    [focusedModuleId, resolutions],
   );
 
   const helperText = useMemo(() => {
@@ -139,64 +160,146 @@ export default function OmniConverter({
           {resolutions.length > 0 ? (
             <div className="flex flex-wrap items-center gap-2">
               {resolutions.map((r) => (
-                <span
+                <button
+                  type="button"
                   key={r.module.id}
+                  onClick={() =>
+                    setFocusedModuleId((current) =>
+                      current === r.module.id ? null : r.module.id,
+                    )
+                  }
+                  aria-pressed={focusedModuleId === r.module.id}
                   className={cn(
-                    "rounded-full px-2 py-1 text-xs font-semibold",
-                    r.module.id === resolutions[0]?.module.id
-                      ? "bg-slate-200 text-slate-700"
-                      : "bg-slate-100 text-slate-600",
+                    "rounded-full px-2 py-1 text-xs font-semibold transition-colors",
+                    focusedModuleId === r.module.id
+                      ? "bg-slate-900 text-white hover:bg-slate-800"
+                      : r.module.id === resolutions[0]?.module.id
+                        ? "bg-slate-200 text-slate-700 hover:bg-slate-300"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200",
                   )}
                 >
                   {r.module.label}
-                </span>
+                </button>
               ))}
             </div>
           ) : null}
         </div>
         {resolutions.length > 0 ? (
           <div className="space-y-4">
-            {resolutions.map((r) => {
-              const hasHighlight = Boolean(r.payload.highlight);
-              const highlightOnly = hasHighlight && r.payload.rows.length === 0;
+            {pinnedResolution ? (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <span className="rounded-full bg-slate-900 px-2 py-1 text-xs font-semibold text-white">
+                    Pinned
+                  </span>
+                  <span className="text-xs text-slate-500">
+                    Click the tag again to unpin
+                  </span>
+                </div>
+                <div className="space-y-3">
+                  {(() => {
+                    const hasHighlight = Boolean(pinnedResolution.payload.highlight);
+                    const highlightOnly =
+                      hasHighlight && pinnedResolution.payload.rows.length === 0;
 
-              return (
-                <div key={r.module.id} className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">
-                      {r.module.label}
-                    </span>
-                    {r.module.id === resolutions[0]?.module.id ? (
-                      <span className="text-xs text-slate-500">Top match</span>
+                    return (
+                      <div
+                        key={pinnedResolution.module.id}
+                        className="space-y-3"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">
+                            {pinnedResolution.module.label}
+                          </span>
+                          <span className="text-xs text-slate-500">Pinned</span>
+                        </div>
+
+                        {highlightOnly ? (
+                          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                            {pinnedResolution.payload.highlight}
+                          </div>
+                        ) : (
+                          <div
+                            className={cn(
+                              "grid gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm",
+                              hasHighlight && "sm:grid-cols-[auto_1fr]",
+                            )}
+                          >
+                            {hasHighlight ? (
+                              <div className="flex items-start justify-center sm:justify-start">
+                                {pinnedResolution.payload.highlight}
+                              </div>
+                            ) : null}
+                            <div className="space-y-6">
+                              <ResultRows rows={pinnedResolution.payload.rows} />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
+            ) : null}
+
+            {pinnedResolution ? (
+              <div className="pt-2">
+                <div className="text-xs font-semibold uppercase tracking-widest text-slate-400">
+                  Detected order
+                </div>
+              </div>
+            ) : null}
+
+            {resolutions
+              .filter(
+                (resolutionItem) =>
+                  !pinnedResolution ||
+                  resolutionItem.module.id !== pinnedResolution.module.id,
+              )
+              .map((r) => {
+                const hasHighlight = Boolean(r.payload.highlight);
+                const highlightOnly =
+                  hasHighlight && r.payload.rows.length === 0;
+
+                return (
+                  <div key={r.module.id} className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">
+                        {r.module.label}
+                      </span>
+                      {r.module.id === resolutions[0]?.module.id ? (
+                        <span className="text-xs text-slate-500">Top match</span>
+                      ) : (
+                        <span className="text-xs text-slate-500">
+                          Also matches
+                        </span>
+                      )}
+                    </div>
+
+                    {highlightOnly ? (
+                      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                        {r.payload.highlight}
+                      </div>
                     ) : (
-                      <span className="text-xs text-slate-500">Also matches</span>
+                      <div
+                        className={cn(
+                          "grid gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm",
+                          hasHighlight && "sm:grid-cols-[auto_1fr]",
+                        )}
+                      >
+                        {hasHighlight ? (
+                          <div className="flex items-start justify-center sm:justify-start">
+                            {r.payload.highlight}
+                          </div>
+                        ) : null}
+                        <div className="space-y-6">
+                          <ResultRows rows={r.payload.rows} />
+                        </div>
+                      </div>
                     )}
                   </div>
-
-                  {highlightOnly ? (
-                    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                      {r.payload.highlight}
-                    </div>
-                  ) : (
-                    <div
-                      className={cn(
-                        "grid gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm",
-                        hasHighlight && "sm:grid-cols-[auto_1fr]",
-                      )}
-                    >
-                      {hasHighlight ? (
-                        <div className="flex items-start justify-center sm:justify-start">
-                          {r.payload.highlight}
-                        </div>
-                      ) : null}
-                      <div className="space-y-6">
-                        <ResultRows rows={r.payload.rows} />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                );
+              })}
 
             <SuggestionForm
               input={input}
