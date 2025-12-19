@@ -29,3 +29,6 @@ dist-ssr
 
 # TypeScript
 *.tsbuildinfo
+.next/types
+.next/dev/types
+next-env.d.ts
