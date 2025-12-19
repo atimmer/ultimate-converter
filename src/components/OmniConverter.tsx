@@ -1,7 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useMemo, useSyncExternalStore } from "react";
 import { SuggestionForm } from "./SuggestionForm";
 import CopyButton from "./CopyButton";
 import {
@@ -23,6 +22,7 @@ type OmniConverterProps = {
 
 const INPUT_PARAM = "input";
 const PINNED_PARAM = "pinned";
+const SEARCH_EVENT = "cu:search";
 
 const parsePinnedParam = (value: string | null) => {
   if (!value) return null;
@@ -32,6 +32,21 @@ const parsePinnedParam = (value: string | null) => {
     .find(Boolean);
   return trimmed ?? null;
 };
+
+const useSearchString = () =>
+  useSyncExternalStore(
+    (onStoreChange) => {
+      const handler = () => onStoreChange();
+      window.addEventListener("popstate", handler);
+      window.addEventListener(SEARCH_EVENT, handler);
+      return () => {
+        window.removeEventListener("popstate", handler);
+        window.removeEventListener(SEARCH_EVENT, handler);
+      };
+    },
+    () => window.location.search,
+    () => "",
+  );
 
 const ResultRows = ({ rows }: { rows: OutputRow[] }) => (
   <dl className="space-y-4">
@@ -68,9 +83,8 @@ export default function OmniConverter({
   intro,
   defaultValue,
 }: OmniConverterProps) {
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-  const router = useRouter();
+  const search = useSearchString();
+  const searchParams = useMemo(() => new URLSearchParams(search), [search]);
   const inputParam = searchParams.get(INPUT_PARAM);
   const pinnedParam = searchParams.get(PINNED_PARAM);
   const input = inputParam ?? defaultValue ?? "";
@@ -90,9 +104,9 @@ export default function OmniConverter({
     }
     const nextSearch = params.toString();
     if (nextSearch === searchParams.toString()) return;
-    const nextUrl =
-      nextSearch.length > 0 ? `${pathname}?${nextSearch}` : pathname;
-    router.replace(nextUrl, { scroll: false });
+    const nextUrl = nextSearch.length > 0 ? `?${nextSearch}` : "";
+    window.history.replaceState(null, "", nextUrl);
+    window.dispatchEvent(new Event(SEARCH_EVENT));
   };
 
   const trimmedInput = useMemo(() => input.trim(), [input]);
